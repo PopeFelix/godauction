@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+<table class="donations">
+    <tr>
+        <th>Power</th><th>Food</th><th>Cash</th><th>Total</th>
+    </tr>
+    {% for power in totals %}
+    <tr>
+        <td>{{ power.name }}</td>
+        <td>{{ power.total_food|default:0|floatformat:2 }}</td>
+        <td>${{ power.total_money|default:0|floatformat:2 }}</td>
+        <td>{{ power.total|default:0|floatformat:2 }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% for power in totals %}
+    <h3>{{ power.name }}: Top Donors</h3>
+    {% if power.by_donor.total %}
+        <h4>Total Points</h4>
+        <table class="donations">
+            <tr>
+                <th>Donor</th><th>Total</th><th>Food</th><th>Cash</th>
+            </tr>
+            {% for item in power.by_donor.total %}
+                <tr>
+                    <td class="name">{{ item.1.name }}</td>
+                    <td class="highlight">{{ item.1.total|default:0|floatformat:2 }}</td>
+                    <td>{{ item.1.food|default:0|floatformat:2 }}</td>
+                    <td>${{ item.1.money|default:0|floatformat:2 }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <h4>Cash</h4>
+        <table class="donations">
+            <tr>
+                <th>Donor</th><th>Cash</th><th>Food</th><th>Total</th>
+            </tr>
+            {% for item in power.by_donor.money %}
+                <tr>
+                    <td class="name">{{ item.1.name }}</td>
+                    <td class="highlight">${{ item.1.money|default:0|floatformat:2 }}</td>
+                    <td>{{ item.1.food|default:0|floatformat:2 }}</td>
+                    <td>{{ item.1.total|default:0|floatformat:2 }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <h4>Food Donations</h4>
+        <table class="donations">
+            <tr>
+                <th>Donor</th><th>Food</th><th>Cash</th><th>Total</th>
+            </tr>
+            {% for item in power.by_donor.food %}
+                <tr>
+                    <td class="name">{{ item.1.name }}</td>
+                    <td class="highlight">{{ item.1.food|default:0|floatformat:2 }}</td>
+                    <td>${{ item.1.money|default:0|floatformat:2 }}</td>
+                    <td>{{ item.1.total|default:0|floatformat:2 }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>This power has no donations yet</p>
+    {% endif %}
+{% endfor %}
+<h3>Top Donors: total points</h3>
+{% if total_points %}
+    <table class="donations">
+        <tr>
+            <th>Donor</th><th>Total</th><th>Food</th><th>Cash</th>
+        </tr>
+        {% for item in total_points %}
+            <tr>
+                <td class="name">{{ item.1.name }}</td>
+                <td class="highlight">{{ item.1.total|default:0|floatformat:2 }}</td>
+                <td>{{ item.1.food|default:0|floatformat:2 }}</td>
+                <td>${{ item.1.money|default:0|floatformat:2 }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No donations have yet been recorded</p>
+{% endif %}
+
+
+<h3>Top Donors: total food</h3>
+{% if total_food %}
+    <table class="donations">
+        <tr>
+            <th>Donor</th><th>Food</th><th>Cash</th><th>Total</th>
+        </tr>
+        {% for item in total_food %}
+            <tr>
+                <td class="name">{{ item.1.name }}</td>
+                <td class="highlight">{{ item.1.food|default:0|floatformat:2 }}</td>
+                <td>${{ item.1.money|default:0|floatformat:2 }}</td>
+                <td>{{ item.1.total|default:0|floatformat:2 }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No food donations have yet been recorded</p>
+{% endif %}
+
+<h3>Top Donors: total cash</h3>
+{% if total_money %}
+    <table class="donations">
+        <tr>
+            <th>Donor</th><th>Cash</th><th>Food</th><th>Total</th>
+        </tr>
+        {% for item in total_money %}
+            <tr>
+                <td class="name">{{ item.1.name }}</td>
+                <td class="highlight">${{ item.1.money|default:0|floatformat:2 }}</td>
+                <td>{{ item.1.food|default:0|floatformat:2 }}</td>
+                <td>{{ item.1.total|default:0|floatformat:2 }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No cash donations have yet been recorded</p>
+{% endif %}
+
+{% endblock %}

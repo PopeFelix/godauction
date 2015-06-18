@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Powers</h2>
+    <ul>
+        {% for power in powers %}
+            <li>
+                <a href="/powers/view?power={{ power.key }}">{{ power.name }}</a>
+                {% if user_is_admin %}
+                    <a class="remove_power" href="/powers/remove?key={{ power.key }}">(Remove)</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    {% if user_is_admin %}
+        <div><a href="/powers/add">Add Power</a></div>
+    {% endif %}
+{% endblock %}

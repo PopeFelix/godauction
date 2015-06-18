@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ power.name }}</h1>
+<div class="donation">
+    <form action="/powers/donate" method="post">
+        <input type="hidden" name="power_key" value="{{ power.key }}" />
+        <div>
+            <label for="donation_from">
+                Donor:
+                <input type="text" id="donation_from" name="donor_name" width="20" />
+            </label>
+            <input type="hidden" id="donor_exists" value="0" />
+            <span class="error_message" style="display: none">This field may not be empty</span>
+        </div>
+        <div>
+            <label for="donation_amount">
+                Amount:
+                <input type="text" id="donation_amount" name="amount" width="5" />
+            </label>
+            <span class="error_message" style="display: none">This field must be a number</span>
+        </div>
+        <div>
+            Type:
+                <label for="type_food">
+                    <input type="radio" class+"donation_type" name="donation_type" id="type_food" value="food" />
+                    Food for Harvesters
+                </label>
+                <label for="type_money">
+                    <input type="radio" class+"donation_type" name="donation_type" id="type_money" value="money" />
+                    Cash
+                </label>
+                <span class="error_message" style="display: none">You must select a donation type</span>
+        </div>
+        <button type="button" class="submit">Record Donation</button>
+        <button type="reset">Reset</button>
+    </form>
+</div>
+{% if last_donation %}
+    <div class="last">
+        <p>
+            Donation recorded: 
+            <span class="donation">
+                {{ last_donation.timestamp|date }} {{ last_donation.timestamp|time }}
+                {% if last_donation.is_money %}
+                    ${{ last_donation.amount|floatformat:2 }}
+                {% else %}
+                    {{ last_donation.amount|floatformat:0 }} food items
+                {% endif %}
+                {{ last_donation.donor.first_name }} {{ last_donation.donor.last_name }}
+            </span>
+            {% if user_is_admin %}
+                <a class="remove_donation" href="/donations/remove?key={{ last_donation.key }}">Undo</a>
+            {% endif %}
+        </p>
+    </div>
+{% endif %}
+<div class="standing">
+    <div><b>Food:</b> <span id="food_points">{{ points.food|default:0|floatformat:2 }}</span></div>
+    <div><b>Cash:</b> <span id="money_points">${{ points.money|default:0|floatformat:2 }}</span></div>
+    {% if donor_totals.total %}
+        <h4>Top Donors By Total Points</h4>
+        <table class="donations">
+            <tr>
+                <th>Donor</th><th>Total</th><th>Food</th><th>Cash</th>
+            </tr>
+            {% for item in donor_totals.total %}
+                <tr>
+                    <td class="name">{{ item.1.name }}</td>
+                    <td class="highlight">{{ item.1.total|default:0|floatformat:2 }}</td>
+                    <td>{{ item.1.food|default:0|floatformat:2 }}</td>
+                    <td>${{ item.1.money|default:0|floatformat:2 }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <h4>Top Cash Donors</h4>
+        <table class="donations">
+            <tr>
+                <th>Donor</th><th>Cash</th><th>Food</th><th>Total</th>
+            </tr>
+            {% for item in donor_totals.money %}
+                <tr>
+                    <td class="name">{{ item.1.name }}</td>
+                    <td class="highlight">${{ item.1.money|default:0|floatformat:2 }}</td>
+                    <td>{{ item.1.food|default:0|floatformat:2 }}</td>
+                    <td>{{ item.1.total|default:0|floatformat:2 }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <h4>Top Food Donors</h4>
+        <table class="donations">
+            <tr>
+                <th>Donor</th><th>Food</th><th>Cash</th><th>Total</th>
+            </tr>
+            {% for item in donor_totals.food %}
+                <tr>
+                    <td class="name">{{ item.1.name }}</td>
+                    <td class="highlight">{{ item.1.food|default:0|floatformat:2 }}</td>
+                    <td>${{ item.1.money|default:0|floatformat:2 }}</td>
+                    <td>{{ item.1.total|default:0|floatformat:2 }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+    {% else %}
+        <p>This power has no donations yet</p>
+    {% endif %}
+</div>
+<div class="information">
+    <div class="description"><b>Pantheon:</b> {{ power.pantheon }}</div>
+    <div class="description"><b>Added:</b> {{ power.when_added }}</div>
+    <div class="description"><b>Added By:</b> {{ power.added_by }}</div>
+</div>
+{% endblock %}

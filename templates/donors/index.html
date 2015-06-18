@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+        <h2>Donors</h2>
+        <ul>
+            {% for donor in donors %}
+                <li>
+                    <a href="/donors/view?donor={{ donor.normalized_name }}">{{ donor.first_name }} {{ donor.last_name }}</a>
+                    {% if user_is_admin %}
+                    <a class="remove_donor" href="/donors/remove?normalized_name={{ donor.normalized_name}}">(Remove)</a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+{% endblock %}

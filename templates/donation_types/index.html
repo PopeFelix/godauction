@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+        <ul>
+            {% for donation_type in donation_types %}
+                <li><a href="/donationtypes/view?donation_type={{ donation_type.key }}">{{ donation_type.name }}</a>: {{ donation_type.value }}</li>
+            {% endfor %}
+        </ul>
+{% endblock %}

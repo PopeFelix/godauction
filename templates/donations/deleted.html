@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+        <p>
+            The donation of 
+            {% ifequal donation.donation_type.name "money" %}
+                ${{ donation.amount }}
+            {% else %}
+                {{ donation.amount }} units of {{ donation.donation_type.name }}
+            {% endifequal %}
+            made at {{ donation.timestamp }}
+            by "{{ donation.donor.first_name }} {{ donation.donor.last_name }}"
+            to the Power "{{ donation.power.name }}" has been deleted.
+        </p>
+{% endblock %}

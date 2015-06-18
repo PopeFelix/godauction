@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+        <div class="containter">
+            <form action="/powers/add" method="post">
+                <div>
+                    <label for="name">
+                        Name: 
+                        <input type="text" id="name" name="name" width="40" />
+                    </label>
+                </div>
+                <div>
+                    <label for="pantheon">
+                        Pantheon: 
+                        <input type="text" id="pantheon" name="pantheon" width="40" />
+                    </label>
+                </div>
+                <input type="submit" />
+                <input type="reset" />
+            </form>
+        </div>
+{% endblock %}

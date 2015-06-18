@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+        <table class="donations">
+            <tr>
+                <th>Timestamp</th><th>Donor</th><th>Power</th><th>Amount</th><th>Type</th><th>Value</th><th></th>
+            </tr>
+            {% for donation in donations %}
+            <tr>
+                <td>{{ donation.timestamp|date:"M j, Y g:i A" }}</td>
+                <td class="name">{{ donation.donor.first_name }} {{ donation.donor.last_name }}</td>
+                <td class="name">{{ donation.power.name }}</td>
+                <td>
+                    {% ifequal donation.donation_type.name "money" %}${% endifequal %}
+                    {{ donation.amount|default:0|floatformat:2 }}
+                </td>
+                <td>{{ donation.donation_type.name }}</td>
+                <td>{{ donation.total }}</td>
+                {% if user_is_admin %}
+                <td><a class="remove_donation" href="/donations/remove?key={{ donation.key }}">Remove</a></td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+{% endblock %}

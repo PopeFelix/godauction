@@ -1,0 +1,31 @@
+table.donations td {
+    text-align: right;
+    padding-right: 0;
+    padding-left: 1em;
+}
+
+table.donations td:first-child {
+    padding-right: 4em;
+    padding-left: 0;
+    text-align: left;
+}
+
+table.donations td.name {
+    text-align: left;
+}
+
+table.donations th {
+    text-align: right ;
+}
+
+table.donations th:first-child {
+    text-align: left ;
+}
+
+table.donations {
+    width: 100%;
+}
+
+span.donation {
+    background-color: yellow;
+}
