@@ -256,26 +256,38 @@ class RecordDonation(webapp.RequestHandler):
 
 class ViewDonor(webapp.RequestHandler):
     def get(self):
-        donor_key = self.request.get('donor')
-        donor = db.get(donor_key)
-        if not donor:
-            path = os.path.join('donors', 'none_found.html')
-            self.out.response.out.write(template.render(path))
-            return
-        
-	donation_query = Donation.all().filter('donor =', donor)
-        donations = donation_query.fetch(donation_query.count())
+        normalized_name = self.request.get('donor')
 
-        template_values = {
-            'year': YEAR,
-            'donor': donor,
-            'donations': donations,
-            'user': users.get_current_user(),
-            'user_is_admin': users.is_current_user_admin(),
-        }
-        path = os.path.join('donors', 'view.html')
-        template = JINJA_ENVIRONMENT.get_template(path);
-        self.response.out.write(template.render(template_values))
+        logging.info('donor is ' + normalized_name)
+
+        donor_query = Donor.all().filter("normalized_name =", normalized_name)
+        donor_key = donor_query.get(keys_only=True)
+        donor = db.get(donor_key)
+
+        if donor:
+            donor.save()
+            
+            donations = []
+            for donation in Donation.all().filter('donor =', donor).run():
+                logging.info('got donation of ' + str(donation.amount))
+                donations.append(donation)
+
+            logging.info('got donor ' + donor.first_name + ' ' + donor.last_name)
+            template_values = {
+                'year': YEAR,
+                'donor': donor,
+                'donations': donations,
+                'user': users.get_current_user(),
+                'user_is_admin': users.is_current_user_admin(),
+            }
+            path = os.path.join('donors', 'view.html')
+            template = JINJA_ENVIRONMENT.get_template(path);
+            self.response.out.write(template.render(template_values))
+        else:
+            logging.info('no donor found')
+            path = os.path.join('donors', 'none_found.html')
+            template = JINJA_ENVIRONMENT.get_template(path);
+            self.response.out.write(template.render())
 
 class DonorAutocomplete(webapp.RequestHandler):
     def get(self):
@@ -291,7 +303,7 @@ class ListDonors(webapp.RequestHandler):
         donor_query = Donor.all().order('first_name')
         donors = donor_query.fetch(donor_query.count())
         for donor in donors:
-            logging.error('found donor ' + donor.normalized_name + ' ' + donor.first_name + ' ' + donor.last_name);
+            logging.error('found a donor ' + pprint.pformat(donor) + ' ' + donor.first_name + ' ' + donor.last_name);
 
         template_values = {
             'year': YEAR,
