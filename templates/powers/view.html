@@ -2,8 +2,8 @@
 {% block content %}
 <h1>{{ power.name }}</h1>
 <div class="donation">
-    <form action="/powers/donate" method="post">
-        <input type="hidden" name="power_key" value="{{ power.key }}" />
+    <form action="/donation/add" method="post">
+        <input type="hidden" name="power_key" value="{{ power.key() }}" />
         <div>
             <label for="donation_from">
                 Donor:
@@ -40,23 +40,24 @@
         <p>
             Donation recorded: 
             <span class="donation">
-                {{ last_donation.timestamp|date }} {{ last_donation.timestamp|time }}
+                {{ last_donation.timestamp|datetime }}
                 {% if last_donation.is_money %}
-                    ${{ last_donation.amount|floatformat:2 }}
+                    {{ last_donation.amount|money }}
                 {% else %}
-                    {{ last_donation.amount|floatformat:0 }} food items
+                    {{ last_donation.amount|food }} food items
                 {% endif %}
                 {{ last_donation.donor.first_name }} {{ last_donation.donor.last_name }}
             </span>
             {% if user_is_admin %}
-                <a class="remove_donation" href="/donations/remove?key={{ last_donation.key }}">Undo</a>
+                <a class="remove_donation" href="/donations/remove?key={{ last_donation.key() }}">Undo</a>
             {% endif %}
         </p>
     </div>
 {% endif %}
+
 <div class="standing">
-    <div><b>Food:</b> <span id="food_points">{{ points.food|default:0|floatformat:2 }}</span></div>
-    <div><b>Cash:</b> <span id="money_points">${{ points.money|default:0|floatformat:2 }}</span></div>
+    <div><b>Food:</b> <span id="food_points">{{ points.food|food }}</span></div>
+    <div><b>Cash:</b> <span id="money_points">{{ points.money|money }}</span></div>
     {% if donor_totals.total %}
         <h4>Top Donors By Total Points</h4>
         <table class="donations">
@@ -66,9 +67,9 @@
             {% for item in donor_totals.total %}
                 <tr>
                     <td class="name">{{ item.1.name }}</td>
-                    <td class="highlight">{{ item.1.total|default:0|floatformat:2 }}</td>
-                    <td>{{ item.1.food|default:0|floatformat:2 }}</td>
-                    <td>${{ item.1.money|default:0|floatformat:2 }}</td>
+                    <td class="highlight">{{ item.1.total|total }}</td>
+                    <td>{{ item.1.food|food }}</td>
+                    <td>{{ item.1.money|money }}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -81,9 +82,9 @@
             {% for item in donor_totals.money %}
                 <tr>
                     <td class="name">{{ item.1.name }}</td>
-                    <td class="highlight">${{ item.1.money|default:0|floatformat:2 }}</td>
-                    <td>{{ item.1.food|default:0|floatformat:2 }}</td>
-                    <td>{{ item.1.total|default:0|floatformat:2 }}</td>
+                    <td class="highlight">{{ item.1.money|money }}</td>
+                    <td>{{ item.1.food|food }}</td>
+                    <td>{{ item.1.total }}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -96,9 +97,9 @@
             {% for item in donor_totals.food %}
                 <tr>
                     <td class="name">{{ item.1.name }}</td>
-                    <td class="highlight">{{ item.1.food|default:0|floatformat:2 }}</td>
-                    <td>${{ item.1.money|default:0|floatformat:2 }}</td>
-                    <td>{{ item.1.total|default:0|floatformat:2 }}</td>
+                    <td class="highlight">{{ item.1.food|food }}</td>
+                    <td>{{ item.1.money|money }}</td>
+                    <td>{{ item.1.total }}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -109,7 +110,7 @@
 </div>
 <div class="information">
     <div class="description"><b>Pantheon:</b> {{ power.pantheon }}</div>
-    <div class="description"><b>Added:</b> {{ power.when_added }}</div>
+    <div class="description"><b>Added:</b> {{ power.when_added|datetime }}</div>
     <div class="description"><b>Added By:</b> {{ power.added_by }}</div>
 </div>
 {% endblock %}

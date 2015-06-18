@@ -4,9 +4,9 @@
     <ul>
         {% for power in powers %}
             <li>
-                <a href="/powers/view?power={{ power.key }}">{{ power.name }}</a>
+                <a href="/powers/view?power={{ power.key() }}">{{ power.name }}</a>
                 {% if user_is_admin %}
-                    <a class="remove_power" href="/powers/remove?key={{ power.key }}">(Remove)</a>
+                    <a class="remove_power" href="/powers/remove?key={{ power.key() }}">(Remove)</a>
                 {% endif %}
             </li>
         {% endfor %}

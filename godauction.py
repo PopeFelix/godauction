@@ -2,12 +2,15 @@ import os
 import logging
 import json
 import webapp2 as webapp
+#import webapp
 import jinja2
+import pprint
 
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.api import users
 from google.appengine.ext import db
 from operator import itemgetter, attrgetter
+from time import strftime
 
 import datetime
 
@@ -18,8 +21,18 @@ DONATION_TYPE_MONEY = ''
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 YEAR = now.year
 JINJA_ENVIRONMENT = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(template_dir), extensions=['jinja2.ext.autoescape'], autoescape=True
+    loader=jinja2.FileSystemLoader(template_dir), 
+    extensions=['jinja2.ext.autoescape'], 
+    autoescape=True
 )
+
+JINJA_ENVIRONMENT.filters['pprint'] = lambda s: pprint.pformat(s)
+JINJA_ENVIRONMENT.filters['money'] = lambda x: '$%0.2f' % float(x) if x else '$0.00'
+JINJA_ENVIRONMENT.filters['total'] = lambda x: '%0.2f' % float(x) if x else '0.00'
+JINJA_ENVIRONMENT.filters['food'] = lambda x: int(x) if x else 0
+JINJA_ENVIRONMENT.filters['date'] = lambda s: strftime('%b %-d, %Y', s.timetuple()) if s else 'Never'
+JINJA_ENVIRONMENT.filters['time'] = lambda s: strftime('%-I:%M %p', s.timetuple()) if s else 'Never' 
+JINJA_ENVIRONMENT.filters['datetime'] = lambda s: strftime('%b %-d, %Y %-I:%M %p', s.timetuple()) if s else 'Never' 
 
 class Power(db.Model):
     added_by = db.UserProperty()
@@ -209,8 +222,8 @@ class ViewPower(webapp.RequestHandler):
 #            'css': [ 'jquery.autocomplete.css' ],
         }
 
-        path = os.path.join(template_dir, 'powers', 'view.html')
-        template = JINJA_ENVIRONMENT.get_template(path);
+        path = os.path.join('powers', 'view.html')
+        template = JINJA_ENVIRONMENT.get_template(path)
         self.response.out.write(template.render(template_values))
 
 class RecordDonation(webapp.RequestHandler):
@@ -246,7 +259,7 @@ class ViewDonor(webapp.RequestHandler):
         donor_key = self.request.get('donor')
         donor = db.get(donor_key)
         if not donor:
-            path = os.path.join(template_dir, 'donors', 'none_found.html')
+            path = os.path.join('donors', 'none_found.html')
             self.out.response.out.write(template.render(path))
             return
         
@@ -260,7 +273,7 @@ class ViewDonor(webapp.RequestHandler):
             'user': users.get_current_user(),
             'user_is_admin': users.is_current_user_admin(),
         }
-        path = os.path.join(template_dir, 'donors', 'view.html')
+        path = os.path.join('donors', 'view.html')
         template = JINJA_ENVIRONMENT.get_template(path);
         self.response.out.write(template.render(template_values))
 
@@ -289,7 +302,7 @@ class ListDonors(webapp.RequestHandler):
             'scripts': [ os.path.join('donors', 'index.js') ],
         }
 
-        path = os.path.join(template_dir, 'donors', 'index.html')
+        path = os.path.join('donors', 'index.html')
         template = JINJA_ENVIRONMENT.get_template(path);
         self.response.out.write(template.render(template_values))
 
@@ -310,7 +323,7 @@ class ListDonations(webapp.RequestHandler):
             'logout_url': users.create_logout_url(self.request.uri),
             'scripts': [ os.path.join('donations', 'index.js') ],
         }
-        path = os.path.join(template_dir, 'donations', 'index.html')
+        path = os.path.join('donations', 'index.html')
         template = JINJA_ENVIRONMENT.get_template(path);
         self.response.out.write(template.render(template_values))
 
@@ -324,7 +337,7 @@ class ListDonationTypes(webapp.RequestHandler):
             'donation_types': donation_types,
             'logout_url': users.create_logout_url(self.request.uri),
         }
-        path = os.path.join(template_dir, 'donation_types', 'index.html')
+        path = os.path.join('donation_types', 'index.html')
         template = JINJA_ENVIRONMENT.get_template(path);
         self.response.out.write(template.render(template_values))
 
@@ -335,7 +348,7 @@ class RemoveDonor(webapp.RequestHandler):
         if normalized_name:
             user = users.get_current_user()
             if not users.is_current_user_admin():
-                path = os.path.join(template_dir, 'common', 'denied.html')
+                path = os.path.join('common', 'denied.html')
             else:
                 donor_query = Donor.all().filter("normalized_name =", normalized_name)
                 donor_key = donor_query.get(keys_only=True)
@@ -345,9 +358,9 @@ class RemoveDonor(webapp.RequestHandler):
                     db.delete(donation)
 
                 db.delete(donor_key)
-                path = os.path.join(template_dir, 'donors', 'deleted.html')
+                path = os.path.join('donors', 'deleted.html')
         else:
-            path = os.path.join(template_dir, 'donors', 'none_found.html')
+            path = os.path.join('donors', 'none_found.html')
 
         template_values = {
             'year': YEAR,
@@ -366,16 +379,16 @@ class RemovePower(webapp.RequestHandler):
         if key:
             user = users.get_current_user()
             if not users.is_current_user_admin():
-                path = os.path.join(template_dir, 'common', 'denied.html')
+                path = os.path.join('common', 'denied.html')
             else:
                 power = db.get(key)
                 for donation in Donation.all().filter('power =', power).run():
                     db.delete(donation.key())
 
                 db.delete(key)
-                path = os.path.join(template_dir, 'powers', 'deleted.html')
+                path = os.path.join('powers', 'deleted.html')
         else:
-            path = os.path.join(template_dir, 'powers', 'none_found.html')
+            path = os.path.join('powers', 'none_found.html')
 
         template_values = {
             'year': YEAR,
@@ -394,14 +407,14 @@ class RemoveDonation(webapp.RequestHandler):
         if key:
             user = users.get_current_user()
             if not users.is_current_user_admin():
-                path = os.path.join(template_dir, 'common', 'denied.html')
+                path = os.path.join('common', 'denied.html')
             else:
                 donation = db.get(key)
                 donation.total = donation.amount * donation.donation_type.value
                 db.delete(key)
-                path = os.path.join(template_dir, 'donations', 'deleted.html')
+                path = os.path.join('donations', 'deleted.html')
         else:
-            path = os.path.join(template_dir, 'donations', 'none_found.html')
+            path = os.path.join('donations', 'none_found.html')
 
         template_values = {
             'year': YEAR,
@@ -482,70 +495,38 @@ class ViewStandings(webapp.RequestHandler):
             'total_food': sorted(all_donors.items(), key=lambda item: item[1]['food'], reverse=True),
             'total_money': sorted(all_donors.items(), key=lambda item: item[1]['money'], reverse=True),
         }
-        path = os.path.join(template_dir, 'standings.html')
+        path = os.path.join('standings.html')
         template = JINJA_ENVIRONMENT.get_template(path);
         self.response.out.write(template.render(template_values))
 
-class RPCHandler(webapp.RequestHandler):
-    """ handles all RPC requests """
-    def __init__(self):
-        webapp.RequestHandler.__init__(self)
-        self.methods = RPCMethods()
-
+class DonorExists(webapp.RequestHandler):
     def get(self):
-        func = None
+        first_name = ''
+        last_name = ''
 
-        action = self.request.get('action')
-        if action:
-            if action[0] == '_':
-                self.error(403) # access denied
-                return
-            else:
-                func = getattr(self.methods, action, None)
-
-        if not func:
-            self.error(404) # file not found
-            return
-
-        args = ()
-
-        # This is a kludge to work with jQuery autocomplete
-        if action == 'ListDonors':
-            term = self.request.get('term')
-            args += (json.loads('"' + term + '"'),)
+        name = self.request.get('name').strip()
+        if (name.find(' ') != -1):
+            (first_name, last_name) = self.request.get('name').split(None, 1)
         else:
-            while True:
-                key = 'arg%d' % len(args)
-                val = self.request.get(key)
-                if val:
-                    args += (json.loads(val),)
-                else:
-                    break
-        result = func(*args)
-        self.response.out.write(json.dumps(result))
-
-class RPCMethods:
-    """ Defines the methods that can be RPCed.
-    NOTE: Do not allow remote callers access to private/protected "_*" methods.
-    """
-    def DonorExists(self, *args):
-        first_name = str(args[0])
-        if len(args) > 1:
-            last_name = str(args[1])
-        else:
+            first_name = name
             last_name = ''
 
         normalized_name = Donor.normalize(first_name, last_name)
         donor_query = Donor.all().filter("normalized_name =", normalized_name)
         donor = donor_query.get()
-        if donor:
-            return donor.serializable()
-        else:
-            return None
 
-    def ListDonors(self, term = None):
+        if donor:
+            donor = donor.serializable()
+
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps(donor))
+
+class DonorList(webapp.RequestHandler):
+    def get(self):
         donor_query = None
         donors = []
+
+        term = self.request.get('term').strip()
 
         # This merits more than a little explanation.  GAE does not support case insensitive queries.  Nor does it support 'OR'
         # queries.  So to search on first name or last name (which is the point of the 'term' argument) requires a normalized 
@@ -557,6 +538,7 @@ class RPCMethods:
         # -- 4 Jul 2010 KP
         if term:
             term = term.upper()
+            logging.info('got a term: ' + term);
 
             gql = 'SELECT * FROM Donor WHERE normalized_name >= :1 AND normalized_name < :2'
             donor_query = db.GqlQuery(gql, term, term + u"\ufffd")
@@ -569,18 +551,23 @@ class RPCMethods:
                 donors.append(donor.first_name + ' ' + donor.last_name)
 
         else:
+            logging.info('did not got a term')
             donor_query = Donor.all().order('first_name')
-            for donor in donor_query.run():
+            iterable = donor_query.run()
+            for donor in iterable:
+                logging.info('found donor ' + donor.first_name + ' ' + donor.last_name)
                 donors.append(donor.first_name + ' ' + donor.last_name)
 
-        return donors
+        logging.info('here')
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps(donors))
 
 application = webapp.WSGIApplication(
      [
         ('/', MainPage),
         ('/powers', ListPowers),
         ('/powers/add', AddPower),
-        ('/powers/donate', RecordDonation),
+        ('/donation/add', RecordDonation),
         ('/powers/view', ViewPower),
         ('/powers/remove', RemovePower),
         ('/donors/view', ViewDonor),
@@ -590,8 +577,8 @@ application = webapp.WSGIApplication(
         ('/donations/remove', RemoveDonation),
         ('/donationtypes', ListDonationTypes),
         ('/standings', ViewStandings),
-        ('/rpc/donorlist', DonorAutocomplete),
-        ('/rpc', RPCHandler),
+        ('/donor/exists', DonorExists),
+        ('/donors/list', DonorList),
      ],
      debug=True
 )

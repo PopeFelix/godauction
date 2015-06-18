@@ -8,9 +8,9 @@
     {% for power in totals %}
     <tr>
         <td>{{ power.name }}</td>
-        <td>{{ power.total_food|default:0|floatformat:2 }}</td>
-        <td>${{ power.total_money|default:0|floatformat:2 }}</td>
-        <td>{{ power.total|default:0|floatformat:2 }}</td>
+        <td>{{ power.total_food|food }}</td>
+        <td>{{ power.total_money|money }}</td>
+        <td>{{ power.total|float }}</td>
     </tr>
     {% endfor %}
 </table>
@@ -26,9 +26,9 @@
             {% for item in power.by_donor.total %}
                 <tr>
                     <td class="name">{{ item.1.name }}</td>
-                    <td class="highlight">{{ item.1.total|default:0|floatformat:2 }}</td>
-                    <td>{{ item.1.food|default:0|floatformat:2 }}</td>
-                    <td>${{ item.1.money|default:0|floatformat:2 }}</td>
+                    <td class="highlight">{{ item.1.total|total }}</td>
+                    <td>{{ item.1.food|food }}</td>
+                    <td>{{ item.1.money|money }}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -41,9 +41,9 @@
             {% for item in power.by_donor.money %}
                 <tr>
                     <td class="name">{{ item.1.name }}</td>
-                    <td class="highlight">${{ item.1.money|default:0|floatformat:2 }}</td>
-                    <td>{{ item.1.food|default:0|floatformat:2 }}</td>
-                    <td>{{ item.1.total|default:0|floatformat:2 }}</td>
+                    <td class="highlight">{{ item.1.money|money }}</td>
+                    <td>{{ item.1.food|food }}</td>
+                    <td>{{ item.1.total|total }}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -56,9 +56,9 @@
             {% for item in power.by_donor.food %}
                 <tr>
                     <td class="name">{{ item.1.name }}</td>
-                    <td class="highlight">{{ item.1.food|default:0|floatformat:2 }}</td>
-                    <td>${{ item.1.money|default:0|floatformat:2 }}</td>
-                    <td>{{ item.1.total|default:0|floatformat:2 }}</td>
+                    <td class="highlight">{{ item.1.food|food }}</td>
+                    <td>{{ item.1.money|money }}</td>
+                    <td>{{ item.1.total|total }}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -75,9 +75,9 @@
         {% for item in total_points %}
             <tr>
                 <td class="name">{{ item.1.name }}</td>
-                <td class="highlight">{{ item.1.total|default:0|floatformat:2 }}</td>
-                <td>{{ item.1.food|default:0|floatformat:2 }}</td>
-                <td>${{ item.1.money|default:0|floatformat:2 }}</td>
+                <td class="highlight">{{ item.1.total|total }}</td>
+                <td>{{ item.1.food|food }}</td>
+                <td>{{ item.1.money|money }}</td>
             </tr>
         {% endfor %}
     </table>
@@ -95,9 +95,9 @@
         {% for item in total_food %}
             <tr>
                 <td class="name">{{ item.1.name }}</td>
-                <td class="highlight">{{ item.1.food|default:0|floatformat:2 }}</td>
-                <td>${{ item.1.money|default:0|floatformat:2 }}</td>
-                <td>{{ item.1.total|default:0|floatformat:2 }}</td>
+                <td class="highlight">{{ item.1.food|food }}</td>
+                <td>{{ item.1.money|money }}</td>
+                <td>{{ item.1.total|total }}</td>
             </tr>
         {% endfor %}
     </table>
@@ -114,9 +114,9 @@
         {% for item in total_money %}
             <tr>
                 <td class="name">{{ item.1.name }}</td>
-                <td class="highlight">${{ item.1.money|default:0|floatformat:2 }}</td>
-                <td>{{ item.1.food|default:0|floatformat:2 }}</td>
-                <td>{{ item.1.total|default:0|floatformat:2 }}</td>
+                <td class="highlight">{{ item.1.money|money }}</td>
+                <td>{{ item.1.food|food}}</td>
+                <td>{{ item.1.total|total }}</td>
             </tr>
         {% endfor %}
     </table>
